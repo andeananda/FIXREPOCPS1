@@ -1,94 +1,109 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Clock, PhoneIncoming, PhoneOutgoing, XCircle, CheckCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Phone, MessageSquare, Info } from 'lucide-react';
 
-interface CallLog {
-  id: number;
-  target: string;
-  direction: string;
-  status: string;
-  duration: number;
-  timestamp: string;
-}
+const menuItems = [
+  {
+    name: 'Dial Pad',
+    href: '/dashboard/dialpad',
+    icon: Phone,
+  },
+  {
+    name: 'Call Log',
+    href: '/dashboard/log',
+    icon: MessageSquare,
+  },
+  {
+    name: 'About',
+    href: '/dashboard/about',
+    icon: Info,
+  },
+];
 
-export default function LogPage() {
-  const [logs, setLogs] = useState<CallLog[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const res = await fetch('/api/call-log');
-        const data = await res.json();
-        if (data.success) {
-          setLogs(data.logs);
-        }
-      } catch (error) {
-        console.error("Gagal mengambil log:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLogs();
-  }, []);
+export default function DashboardPage() {
+  const router = useRouter();
 
   return (
-    <div className="py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Call History</h1>
-        <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-          Real-time from MariaDB
-        </span>
+    <div
+      style={{
+        minHeight: 'calc(100vh - 120px)', // sisakan tinggi navbar + footer
+        background: '#f0ece8',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 24px',
+      }}
+    >
+      {/* Card container dark navy */}
+      <div
+        style={{
+          background: 'linear-gradient(160deg, #1e2a3a 0%, #16202e 100%)',
+          borderRadius: '28px',
+          padding: '56px 60px',
+          display: 'flex',
+          gap: '32px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
+        }}
+      >
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.name}
+              onClick={() => router.push(item.href)}
+              style={{
+                background: '#ddd8d0',
+                border: 'none',
+                borderRadius: '20px',
+                width: '140px',
+                height: '140px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+                cursor: 'pointer',
+                transition: 'all 0.18s',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.background = '#c8c2ba';
+                el.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.background = '#ddd8d0';
+                el.style.transform = 'scale(1)';
+              }}
+              onMouseDown={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.96)';
+              }}
+              onMouseUp={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.05)';
+              }}
+            >
+              <Icon
+                size={44}
+                color="#1e2a3a"
+                strokeWidth={1.8}
+              />
+              <span
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#1e2a3a',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                {item.name}
+              </span>
+            </button>
+          );
+        })}
       </div>
-
-      {loading ? (
-        <div className="text-center py-12 text-gray-500">Loading call logs...</div>
-      ) : logs.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-gray-300">
-          <p className="text-gray-500">No call history found in Kamailio server.</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
-              <tr>
-                <th className="px-6 py-4 font-semibold">Type</th>
-                <th className="px-6 py-4 font-semibold">Extension</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Duration</th>
-                <th className="px-6 py-4 font-semibold">Time</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    {log.direction === 'inbound' ? 
-                      <PhoneIncoming className="w-5 h-5 text-blue-500" /> : 
-                      <PhoneOutgoing className="w-5 h-5 text-indigo-500" />
-                    }
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{log.target}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {log.status === 'completed' ? 
-                        <CheckCircle className="w-4 h-4 text-green-500" /> : 
-                        <XCircle className="w-4 h-4 text-red-400" />
-                      }
-                      <span className="capitalize">{log.status}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500">{log.duration}s</td>
-                  <td className="px-6 py-4 text-gray-500 text-sm">
-                    {new Date(log.timestamp).toLocaleString('id-ID')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }
