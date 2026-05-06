@@ -14,7 +14,7 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Dial Pad', href: '/dashboard', icon: Phone },
+    { name: 'Dial Pad', href: '/dashboard/dialpad', icon: Phone },
     { name: 'Call', href: '/dashboard/call', icon: PhoneCall },
     { name: 'Call Log', href: '/dashboard/log', icon: List },
     { name: 'About', href: '/dashboard/about', icon: Info },
