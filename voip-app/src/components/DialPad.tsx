@@ -38,52 +38,182 @@ export default function DialPad() {
   ];
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-      <div className="p-8 pb-4">
-        <div className="h-20 flex flex-col justify-end items-center mb-6 border-b border-gray-100 pb-4">
+    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-[#f0ece8]">
+      {/* Card utama — dark navy sesuai desain */}
+      <div
+        style={{
+          background: 'linear-gradient(160deg, #1e2a3a 0%, #16202e 100%)',
+          borderRadius: '24px',
+          padding: '32px 28px 28px',
+          width: '320px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
+        }}
+      >
+        {/* Input nomor */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '28px',
+            border: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
           <input
             type="text"
             readOnly
             value={number}
-            className="w-full text-center text-4xl font-light text-gray-800 tracking-wider bg-transparent outline-none truncate"
-            placeholder="Enter number"
+            placeholder="Enter number......"
+            className="w-full bg-transparent outline-none text-center tracking-widest"
+            style={{
+              color: number ? '#ffffff' : 'rgba(255,255,255,0.35)',
+              fontSize: number ? '22px' : '14px',
+              fontWeight: 400,
+              letterSpacing: number ? '0.15em' : '0.05em',
+              caretColor: 'transparent',
+            }}
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        {/* Grid tombol */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '12px',
+            marginBottom: '20px',
+          }}
+        >
           {padButtons.map((btn) => (
             <button
               key={btn.digit}
               onClick={() => handlePress(btn.digit)}
-              className="w-16 h-16 mx-auto rounded-full flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 group"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px',
+                height: '64px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background 0.15s, transform 0.1s',
+                gap: '2px',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.13)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)';
+              }}
+              onMouseDown={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.94)';
+              }}
+              onMouseUp={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+              }}
             >
-              <span className="text-2xl text-gray-800 font-medium group-active:scale-95">{btn.digit}</span>
-              {btn.letters && <span className="text-[10px] text-gray-400 font-medium mt-[-2px]">{btn.letters}</span>}
+              <span
+                style={{
+                  color: '#ffffff',
+                  fontSize: '20px',
+                  fontWeight: 500,
+                  lineHeight: 1,
+                }}
+              >
+                {btn.digit}
+              </span>
+              {btn.letters && (
+                <span
+                  style={{
+                    color: 'rgba(255,255,255,0.4)',
+                    fontSize: '9px',
+                    fontWeight: 500,
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  {btn.letters}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        <div className="flex justify-between items-center px-4">
-          <div className="w-16"></div> {/* Spacer */}
-          
+        {/* Baris bawah: Call + Delete */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '24px',
+          }}
+        >
+          {/* Tombol Call */}
           <button
             onClick={handleCall}
             disabled={!number}
-            className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 active:bg-green-700 flex items-center justify-center shadow-lg shadow-green-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: number ? '#22c55e' : 'rgba(34,197,94,0.35)',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: number ? 'pointer' : 'not-allowed',
+              transition: 'background 0.2s, transform 0.15s',
+              boxShadow: number ? '0 4px 20px rgba(34,197,94,0.4)' : 'none',
+            }}
+            onMouseEnter={e => {
+              if (number) (e.currentTarget as HTMLButtonElement).style.background = '#16a34a';
+            }}
+            onMouseLeave={e => {
+              if (number) (e.currentTarget as HTMLButtonElement).style.background = '#22c55e';
+            }}
+            onMouseDown={e => {
+              if (number) (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.93)';
+            }}
+            onMouseUp={e => {
+              (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+            }}
           >
-            <Phone className="w-7 h-7 text-white fill-current" />
+            <Phone
+              size={26}
+              color="#ffffff"
+              fill="#ffffff"
+              strokeWidth={0}
+            />
           </button>
-          
-          <div className="w-16 flex justify-center">
-            <button
-              onClick={handleDelete}
-              onContextMenu={(e) => { e.preventDefault(); setNumber(''); }} 
-              disabled={!number}
-              className="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <Delete className="w-6 h-6" />
-            </button>
-          </div>
+
+          {/* Tombol Delete */}
+          <button
+            onClick={handleDelete}
+            onContextMenu={(e) => { e.preventDefault(); setNumber(''); }}
+            disabled={!number}
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              background: 'transparent',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: number ? 'pointer' : 'not-allowed',
+              opacity: number ? 1 : 0.3,
+              transition: 'opacity 0.2s, background 0.15s',
+            }}
+            onMouseEnter={e => {
+              if (number) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            }}
+          >
+            <Delete size={22} color="rgba(255,255,255,0.6)" />
+          </button>
         </div>
       </div>
     </div>
