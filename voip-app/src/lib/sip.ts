@@ -3,15 +3,17 @@ import {
   UserAgentOptions, 
   Inviter, 
   SessionState, 
-  Invitation 
+  Invitation, 
+  Registerer,
+  UserAgentState
 } from 'sip.js';
 
-// 1. UPDATE DENGAN IP DAN PORT KAMAILIO KAMU
-export const SIP_SERVER = '10.207.168.17'; // IP Server Ubuntu Kamu
-// PERUBAHAN UTAMA: Gunakan ws:// (bukan wss://) dan port 8080
-export const WS_SERVER = `ws://${SIP_SERVER}:8080`;
+
+export const SIP_SERVER = '10.207.168.17'; 
+export const WS_SERVER = `ws://${SIP_SERVER}:8088`;
 
 let userAgent: UserAgent | null = null;
+let registerer: Registerer | null = null;
 let currentSession: Inviter | Invitation | null = null;
 
 // Fungsi Helper untuk memasang audio ke HTML
@@ -35,22 +37,23 @@ const setupRemoteAudio = (session: Inviter | Invitation) => {
 };
 
 export const initSipUserAgent = async (extension: string, password?: string) => {
-  if (userAgent) await userAgent.stop();
+  if (userAgent && userAgent.state !== UserAgentState.Stopped) {
+    await userAgent.stop();
+  }
 
   const uri = UserAgent.makeURI(`sip:${extension}@${SIP_SERVER}`);
   if (!uri) throw new Error('Invalid SIP URI');
 
   const options: UserAgentOptions = {
-    authorizationPassword: password, // Di database kamu adalah '123'
+    authorizationPassword: password, 
     authorizationUsername: extension,
-    transportOptions: { server: WS_SERVER }, // <-- Sudah diganti ke jalur yang benar
+    transportOptions: { server: WS_SERVER }, 
     uri: uri,
     delegate: {
       onInvite: (invitation: Invitation) => {
         console.log('Ada panggilan masuk dari:', invitation.remoteIdentity.uri.user);
         currentSession = invitation;
         
-        // Logika: Otomatis angkat untuk testing
         setupRemoteAudio(invitation);
         invitation.accept({
           sessionDescriptionHandlerOptions: { constraints: { audio: true, video: false } }
@@ -66,6 +69,10 @@ export const initSipUserAgent = async (extension: string, password?: string) => 
 
   userAgent = new UserAgent(options);
   await userAgent.start();
+
+  registerer = new Registerer(userAgent);
+  await registerer.register();
+
   return userAgent;
 };
 
@@ -90,7 +97,6 @@ export const makeCall = async (targetExtension: string, onStateChange: (state: S
   return inviter;
 };
 
-// PERBAIKAN: Fungsi hangupCall yang sebelumnya terpotong
 export const hangupCall = async () => {
   if (currentSession) {
     if (currentSession.state === SessionState.Established) {
